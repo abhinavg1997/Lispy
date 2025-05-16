@@ -30,9 +30,6 @@ enum { LVAL_NUM, LVAL_ERR };
 //  b. Bad Operand
 //  c. Bad Number (Too large probably)
 enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM };
-// adding definition of eval
-long eval(mpc_ast_t *t);
-long eval_op(long x, char *op, long y);
 
 // LISP VALUE STRUCTURE
 typedef struct {
@@ -40,6 +37,12 @@ typedef struct {
   int type;
   int err;
 } lval;
+// adding definition of eval
+lval eval(mpc_ast_t *t);
+void lval_println(lval v);
+lval eval_op(lval x, char *op, lval y);
+lval lval_num(long x);
+lval lval_err(int x);
 
 int main(int argc, char **argv) {
   /* Create Some Parsers */
@@ -77,8 +80,8 @@ int main(int argc, char **argv) {
       //      mpc_ast_print(r.output);
       //     mpc_ast_delete(r.output);
 
-      long result = eval(r.output);
-      printf("%li\n", result);
+      lval result = eval(r.output);
+      lval_println(result);
       mpc_ast_delete(r.output);
     } else {
       /* Otherwise Print the Error */
@@ -91,17 +94,19 @@ int main(int argc, char **argv) {
   mpc_cleanup(4, Number, Operator, Expr, Lispy);
 }
 
-long eval(mpc_ast_t *t) {
+lval eval(mpc_ast_t *t) {
 
   // If tagged as number, then return it directly
   if (strstr(t->tag, "number")) {
-    return atoi(t->contents);
+    errno = 0;
+    long x = strtol(t->contents, NULL, 10);
+    return errno != ERANGE ? lval_num(x) : lval_err(LERR_BAD_NUM);
   }
 
   // operator is ALWAYS the second child
   char *op = t->children[1]->contents;
 
-  long x = eval(t->children[2]);
+  lval x = eval(t->children[2]);
 
   int i = 3; // Start from index 3 since we already evaluated children[2]
   while (strstr(t->children[i]->tag, "expr")) {
@@ -111,20 +116,28 @@ long eval(mpc_ast_t *t) {
   return x;
 }
 
-long eval_op(long x, char *op, long y) {
+lval eval_op(lval x, char *op, lval y) {
+  if (x.type == LVAL_ERR) {
+    return x;
+  }
+  if (y.type == LVAL_ERR) {
+    return y;
+  }
+
   if (strcmp(op, "+") == 0) {
-    return x + y;
+    return lval_num(x.num + y.num);
   }
   if (strcmp(op, "-") == 0) {
-    return x - y;
+    return lval_num(x.num - y.num);
   }
   if (strcmp(op, "*") == 0) {
-    return x * y;
+    return lval_num(x.num * y.num);
   }
   if (strcmp(op, "/") == 0) {
-    return x / y;
+
+    return y.num == 0 ? lval_err(LERR_DIV_ZERO) : lval_num(x.num / y.num);
   }
-  return 0;
+  return lval_err(LERR_BAD_OP);
 }
 
 lval lval_num(long x) {
@@ -142,9 +155,28 @@ lval lval_err(int x) {
 }
 
 void lval_print(lval v) {
-  switch (v.type) { case LVAL_NUM: }
+  switch (v.type) {
+  case LVAL_NUM:
+    printf("%li", v.num);
+    break;
+  case LVAL_ERR:
+
+    if (v.err == LERR_DIV_ZERO) {
+      printf("Error: Division By Zero!");
+    }
+    if (v.err == LERR_BAD_OP) {
+      printf("Error: Invalid Operator!");
+    }
+    if (v.err == LERR_BAD_NUM) {
+      printf("Error: Invalid Number!");
+    }
+  }
 }
 
+void lval_println(lval v) {
+  lval_print(v);
+  putchar('\n');
+}
 /*
 
 Bonus Marks
