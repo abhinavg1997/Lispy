@@ -1,70 +1,68 @@
-Lispy
+# Lispy
 
 A simple Lisp-like interpreter in C, following the Build Your Own Lisp tutorial by Daniel Holden.
 
-Lispy is an implementation of a minimal Lisp interpreter written in C. It follows the step-by-step chapters of the Build Your Own Lisp tutorial, from parsing to evaluation, extending with Q-expressions, variables, user-defined functions, and more.
+## Installation
 
-Features
+1. Clone the repository:
+   ```
+   git clone https://github.com/abhinavg1997/Lispy.git
+   ```
+2. Change to the project directory:
+   ```
+   cd Lispy
+   ```
+3. Compile the project using GCC:
+   ```
+   gcc -std=c99 -Wall -Werror -o lispy main.c mpc.c
+   ```
+4. Run the interpreter:
+   ```
+   ./lispy
+   ```
 
-Each milestone corresponds to a tutorial chapter:
+## Usage
 
-REPL & Parsing
+Lispy is a REPL (Read-Eval-Print Loop) interpreter. You can enter Lisp-like expressions, and the interpreter will evaluate them and print the result.
 
-Read, evaluate, print loop
+Here's an example of using Lispy:
 
-Basic parsing of numbers and symbols
+```
+lispy> (+ 1 2 3)
+6
+lispy> (- 10 4)
+6
+lispy> (def x 5)
+x
+lispy> (+ x 1)
+6
+lispy> (def double (\ (x) (* x 2)))
+double
+lispy> (double 5)
+10
+```
 
-S-Expressions
+## API
 
-Nested expressions ( + 1 ( * 2 3 ) )
+Lispy supports the following features:
 
-Q-Expressions
+- Basic parsing of numbers and symbols
+- S-Expressions (nested expressions)
+- Q-Expressions (quoted expressions as first-class lists)
+- Built-in arithmetic and comparison operations (+, -, *, /, %, ==, !=, <, >)
+- Variables and environments (global and local bindings)
+- User-defined functions with lambda expressions
+- Advanced built-ins (head, tail, list, join, eval)
+- Error handling with safe type and argument checking
 
-Quote expressions as first-class lists {1 2 3}
+## Contributing
 
-Built-in Arithmetic & Comparison
+Contributions to Lispy are welcome! If you find any issues or have ideas for improvements, please feel free to open an issue or submit a pull request.
 
-+, -, *, /, %, ==, !=, <, >
+## License
 
-Variables & Environments
+Lispy is licensed under the [MIT License](LICENSE).
 
-def for global bindings
+## Testing
 
-= for local bindings
-
-User-Defined Functions
-
-Lambda creation with \
-
-Function application
-
-Advanced Built-ins
-
-List manipulation: head, tail, list, join
-
-Evaluation: eval
-
-Error Handling
-
-Safe type and argument checking
-
-Prerequisites
-
-C compiler with support for C99 (e.g. GCC or Clang)
-
-Make (optional, but recommended)
-
-Unix-like environment (Linux, macOS, WSL)
-
-Building
-
-Clone this repo
-
-git clone https://github.com/abhinavg1997/Lispy.git
-cd Lispy
-
-and then compile with gcc:
-gcc -std=c99 -Wall -Werror -o lispy main.c mpc.c
-
-and then run: ./lispy
-
+Lispy does not currently have a formal test suite. However, you can test the interpreter by running various expressions and verifying the output.
